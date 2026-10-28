@@ -1,0 +1,125 @@
+# Azure DevOps pipeline: build, test and publish the API and the Angular client,
+# then run the automated accessibility check (axe-core in headless Chrome) against the combined app.
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  buildConfiguration: Release
+  dotnetVersion: 8.0.x
+  nodeVersion: 20.x
+
+stages:
+  - stage: Build
+    displayName: Build and test
+    jobs:
+      - job: Api
+        displayName: ASP.NET Core API
+        steps:
+          - task: UseDotNet@2
+            displayName: Use .NET SDK $(dotnetVersion)
+            inputs:
+              packageType: sdk
+              version: $(dotnetVersion)
+
+          - script: dotnet restore PermitPortal.sln
+            displayName: Restore
+
+          - script: dotnet build PermitPortal.sln --configuration $(buildConfiguration) --no-restore
+            displayName: Build
+
+          - script: dotnet test PermitPortal.sln --configuration $(buildConfiguration) --no-build --logger trx --results-directory $(Agent.TempDirectory)/TestResults
+            displayName: Unit tests (service layer and validation)
+
+          - task: PublishTestResults@2
+            displayName: Publish test results
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: VSTest
+              testResultsFiles: '**/*.trx'
+              searchFolder: $(Agent.TempDirectory)/TestResults
+
+          - script: dotnet publish src/PermitPortal.Api/PermitPortal.Api.csproj --configuration $(buildConfiguration) --no-build --output $(Build.ArtifactStagingDirectory)/api
+            displayName: Publish API
+
+          - publish: $(Build.ArtifactStagingDirectory)/api
+            artifact: api
+
+      - job: Client
+        displayName: Angular client
+        steps:
+          - task: NodeTool@0
+            displayName: Use Node $(nodeVersion)
+            inputs:
+              versionSpec: $(nodeVersion)
+
+          - script: npm ci
+            displayName: Install packages
+            workingDirectory: client
+            env:
+              PUPPETEER_SKIP_DOWNLOAD: 'true' # use the agent's installed Chrome
+
+          - script: npm test
+            displayName: Unit and axe component tests
+            workingDirectory: client
+
+          - script: npm run build
+            displayName: Production build
+            workingDirectory: client
+
+          - publish: client/dist/client/browser
+            artifact: client
+
+  - stage: Accessibility
+    displayName: Accessibility check
+    dependsOn: Build
+    jobs:
+      - job: Axe
+        displayName: axe-core scan in headless Chrome
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              packageType: sdk
+              version: $(dotnetVersion)
+
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(nodeVersion)
+
+          - download: current
+            artifact: api
+
+          - download: current
+            artifact: client
+
+          # Serve the Angular build from the API's wwwroot, the same way it would be deployed.
+          - script: |
+              mkdir -p $(Pipeline.Workspace)/api/wwwroot
+              cp -r $(Pipeline.Workspace)/client/* $(Pipeline.Workspace)/api/wwwroot/
+              cd $(Pipeline.Workspace)/api
+              nohup dotnet PermitPortal.Api.dll --urls http://localhost:5080 > api.log 2>&1 &
+              sleep 10
+            displayName: Start API with client
+
+          - script: npm ci
+            displayName: Install packages
+            workingDirectory: client
+            env:
+              PUPPETEER_SKIP_DOWNLOAD: 'true' # use the agent's installed Chrome
+
+          - script: npm run a11y
+            displayName: Run axe and keyboard checks
+            workingDirectory: client
+            env:
+              BASE_URL: http://localhost:5080
+              CHROME_PATH: /usr/bin/google-chrome
