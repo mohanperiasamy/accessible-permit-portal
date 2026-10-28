@@ -1,0 +1,28 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+
+# Local data and Data Protection keys (never commit keys)
+*.db
+*.db-shm
+*.db-wal
+keys/
+
+# Angular / Node
+node_modules/
+client/dist/
+client/.angular/
+coverage/
+
+# Published Angular build copied into the API
+src/PermitPortal.Api/wwwroot/
+
+# Editors / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
