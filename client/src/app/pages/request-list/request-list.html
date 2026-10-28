@@ -1,0 +1,50 @@
+<div class="page-heading">
+  <h1>Service requests</h1>
+  <a mat-flat-button routerLink="/requests/new">Submit a request</a>
+</div>
+
+<mat-form-field class="filter" appearance="outline">
+  <mat-label>Filter by status</mat-label>
+  <mat-select [ngModel]="statusFilter()" (ngModelChange)="onFilterChange($event)">
+    <mat-option [value]="null">All statuses</mat-option>
+    @for (option of statusOptions; track option[0]) {
+      <mat-option [value]="option[0]">{{ option[1] }}</mat-option>
+    }
+  </mat-select>
+</mat-form-field>
+
+<p class="visually-hidden result-count" aria-live="polite">{{ resultMessage() }}</p>
+
+@if (error()) {
+  <p class="message message--error" role="alert">{{ error() }}</p>
+} @else if (loading()) {
+  <p>Loading requests…</p>
+} @else if (requests().length === 0) {
+  <p>No requests match this filter.</p>
+} @else {
+  <div class="table-wrap" role="region" aria-labelledby="requests-caption" tabindex="0">
+    <table class="ds-table">
+      <caption id="requests-caption">Service requests, newest first</caption>
+      <thead>
+        <tr>
+          <th scope="col">Reference</th>
+          <th scope="col">Type</th>
+          <th scope="col">Address</th>
+          <th scope="col">Status</th>
+          <th scope="col">Submitted</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of requests(); track r.id) {
+          <tr>
+            <th scope="row"><a [routerLink]="['/requests', r.id]">{{ r.referenceNumber }}</a></th>
+            <td data-label="Type">{{ typeLabel(r.type) }}</td>
+            <td data-label="Address">{{ r.address }}</td>
+            <td data-label="Status"><app-status-badge [status]="r.status" /></td>
+            <td data-label="Submitted">{{ r.createdUtc | date: 'mediumDate' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

@@ -1,0 +1,52 @@
+@if (notFound()) {
+  <h1>Request not found</h1>
+  <p>We could not find that request. <a routerLink="/requests">Return to all requests</a>.</p>
+} @else if (request(); as r) {
+  @if (justSubmitted) {
+    <div class="confirmation" role="status">
+      <h2>Request submitted</h2>
+      <p>Your reference number is <strong>{{ r.referenceNumber }}</strong>. Keep it to check on your request.</p>
+    </div>
+  }
+
+  <h1>Request {{ r.referenceNumber }}</h1>
+
+  <dl class="details">
+    <div><dt>Status</dt><dd><app-status-badge [status]="r.status" /></dd></div>
+    <div><dt>Type</dt><dd>{{ typeLabels[r.type] }}</dd></div>
+    <div><dt>Address</dt><dd>{{ r.address }}</dd></div>
+    <div class="wide"><dt>Description</dt><dd>{{ r.description }}</dd></div>
+    <div><dt>Applicant</dt><dd>{{ r.applicantName }}</dd></div>
+    <div><dt>Email</dt><dd>{{ r.applicantEmail }}</dd></div>
+    <div><dt>Phone</dt><dd>{{ r.maskedPhone }} <span class="visually-hidden">(only the last four digits are shown)</span></dd></div>
+    <div><dt>Submitted</dt><dd>{{ r.createdUtc | date: 'medium' }}</dd></div>
+  </dl>
+
+  <section aria-labelledby="status-heading" class="status-panel">
+    <h2 id="status-heading">Update status</h2>
+    @if (nextStatuses().length === 0) {
+      <p>This request is closed. No further changes are possible.</p>
+    } @else {
+      <form class="status-form" (ngSubmit)="updateStatus()">
+        <mat-form-field appearance="outline">
+          <mat-label>New status</mat-label>
+          <mat-select [ngModel]="newStatus()" (ngModelChange)="newStatus.set($event)" name="status">
+            @for (s of nextStatuses(); track s) {
+              <mat-option [value]="s">{{ statusLabels[s] }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button mat-stroked-button type="submit">Save status</button>
+      </form>
+    }
+    @if (statusError()) {
+      <p class="status-error" role="alert">{{ statusError() }}</p>
+    }
+    <p class="visually-hidden" aria-live="polite">{{ statusMessage() }}</p>
+  </section>
+
+  <p><a routerLink="/requests">Back to all requests</a></p>
+} @else {
+  <h1>Request details</h1>
+  <p>Loading…</p>
+}

@@ -1,0 +1,46 @@
+@use '../../../styles/tokens' as ds;
+
+.intro {
+  color: ds.token(color-text-muted);
+  max-width: 40rem;
+}
+
+.error-summary {
+  border: 3px solid ds.token(color-error);
+  border-radius: ds.token(radius-md);
+  padding: ds.token(space-4);
+  margin-bottom: ds.token(space-6);
+  h2 { margin-top: 0; color: ds.token(color-error); }
+  a { color: ds.token(color-error); font-weight: 600; }
+  &:focus { outline: ds.token(focus-ring-width) solid ds.token(color-focus); }
+}
+
+.server-error {
+  color: ds.token(color-error);
+  font-weight: 600;
+}
+
+fieldset {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: ds.token(space-2) ds.token(space-4);
+  border: 1px solid ds.token(color-border);
+  border-radius: ds.token(radius-md);
+  padding: ds.token(space-4);
+  margin: 0 0 ds.token(space-6);
+}
+
+legend {
+  font-weight: 600;
+  padding: 0 ds.token(space-2);
+}
+
+@media (min-width: ds.$bp-tablet) {
+  fieldset { grid-template-columns: 1fr 1fr; }
+  .full { grid-column: 1 / -1; }
+}
+
+.actions {
+  display: flex;
+  gap: ds.token(space-3);
+}

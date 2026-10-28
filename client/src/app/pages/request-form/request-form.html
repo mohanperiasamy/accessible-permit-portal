@@ -1,0 +1,75 @@
+<h1>Submit a request</h1>
+<p class="intro">All fields are required. Your phone number is encrypted when stored and only the last four digits are shown.</p>
+
+@if (summaryErrors().length > 0) {
+  <div #errorSummary class="error-summary" role="alert" tabindex="-1" aria-labelledby="error-summary-title">
+    <h2 id="error-summary-title">There {{ summaryErrors().length === 1 ? 'is a problem' : 'are ' + summaryErrors().length + ' problems' }} with your request</h2>
+    <ul>
+      @for (e of summaryErrors(); track e.id) {
+        <li><a [href]="'#' + e.id" (click)="focusField($event, e.id)">{{ e.message }}</a></li>
+      }
+    </ul>
+  </div>
+}
+
+@if (serverError()) {
+  <p class="server-error" role="alert">{{ serverError() }}</p>
+}
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <fieldset>
+    <legend>About the request</legend>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ fields['type'].label }}</mat-label>
+      <mat-select [id]="fields['type'].id" formControlName="type" required>
+        @for (option of typeOptions; track option[0]) {
+          <mat-option [value]="option[0]">{{ option[1] }}</mat-option>
+        }
+      </mat-select>
+      <mat-error>{{ errorFor('type') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ fields['address'].label }}</mat-label>
+      <input matInput [id]="fields['address'].id" formControlName="address" autocomplete="street-address" required />
+      <mat-error>{{ errorFor('address') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>{{ fields['description'].label }}</mat-label>
+      <textarea matInput [id]="fields['description'].id" formControlName="description" rows="4" required></textarea>
+      <mat-hint>At least 10 characters.</mat-hint>
+      <mat-error>{{ errorFor('description') }}</mat-error>
+    </mat-form-field>
+  </fieldset>
+
+  <fieldset>
+    <legend>Your contact details</legend>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ fields['applicantName'].label }}</mat-label>
+      <input matInput [id]="fields['applicantName'].id" formControlName="applicantName" autocomplete="name" required />
+      <mat-error>{{ errorFor('applicantName') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ fields['applicantEmail'].label }}</mat-label>
+      <input matInput type="email" [id]="fields['applicantEmail'].id" formControlName="applicantEmail" autocomplete="email" required />
+      <mat-error>{{ errorFor('applicantEmail') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ fields['phone'].label }}</mat-label>
+      <input matInput type="tel" [id]="fields['phone'].id" formControlName="phone" autocomplete="tel" required />
+      <mat-hint>For example, 555-010-1234.</mat-hint>
+      <mat-error>{{ errorFor('phone') }}</mat-error>
+    </mat-form-field>
+  </fieldset>
+
+  <div class="actions">
+    <button mat-flat-button type="submit" [disabled]="submitting()">
+      {{ submitting() ? 'Submitting…' : 'Submit request' }}
+    </button>
+  </div>
+</form>

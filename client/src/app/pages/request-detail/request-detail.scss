@@ -1,0 +1,40 @@
+@use '../../../styles/tokens' as ds;
+
+.confirmation {
+  border-left: 6px solid ds.token(color-success);
+  background: ds.token(color-surface);
+  padding: ds.token(space-4);
+  margin-bottom: ds.token(space-6);
+  h2 { margin-top: 0; color: ds.token(color-success); }
+}
+
+.details {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: ds.token(space-4);
+  margin: 0 0 ds.token(space-6);
+  dt { font-weight: 600; color: ds.token(color-text-muted); }
+  dd { margin: ds.token(space-1) 0 0; }
+}
+
+@media (min-width: ds.$bp-tablet) {
+  .details { grid-template-columns: repeat(2, 1fr); }
+  .wide { grid-column: 1 / -1; }
+}
+
+.status-panel {
+  border-top: 1px solid ds.token(color-border);
+  padding-top: ds.token(space-2);
+}
+
+.status-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: ds.token(space-3);
+}
+
+.status-error {
+  color: ds.token(color-error);
+  font-weight: 600;
+}

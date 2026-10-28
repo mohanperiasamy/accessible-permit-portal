@@ -1,0 +1,69 @@
+@use '../../../styles/tokens' as ds;
+
+.page-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: ds.token(space-4);
+  margin-bottom: ds.token(space-4);
+  h1 { margin: 0; }
+}
+
+.filter {
+  width: 100%;
+  max-width: 18rem;
+}
+
+.message--error {
+  color: ds.token(color-error);
+  font-weight: 600;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  caption {
+    text-align: left;
+    font-weight: 600;
+    padding-bottom: ds.token(space-2);
+  }
+
+  th, td {
+    text-align: left;
+    padding: ds.token(space-3);
+    border-bottom: 1px solid ds.token(color-border);
+    vertical-align: top;
+  }
+
+  thead th {
+    background: ds.token(color-surface);
+  }
+}
+
+// Small screens: each row becomes a stacked card; labels come from data-label.
+@media (max-width: ds.$bp-tablet) {
+  .ds-table {
+    thead { @include ds.visually-hidden; }
+    tr {
+      display: block;
+      border: 1px solid ds.token(color-border);
+      border-radius: ds.token(radius-md);
+      margin-bottom: ds.token(space-3);
+    }
+    th, td {
+      display: block;
+      border: 0;
+      padding: ds.token(space-2) ds.token(space-3);
+    }
+    td::before {
+      content: attr(data-label) ': ';
+      font-weight: 600;
+    }
+  }
+}
