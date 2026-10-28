@@ -1,0 +1,26 @@
+<a class="skip-link" href="#main-content" (click)="skipToMain($event)">Skip to main content</a>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="site-header__brand" routerLink="/requests">Service Requests</a>
+    <nav aria-label="Main">
+      <ul class="site-nav">
+        <li>
+          <a routerLink="/requests" routerLinkActive="is-active" ariaCurrentWhenActive="page"
+             [routerLinkActiveOptions]="{ exact: true }">All requests</a>
+        </li>
+        <li>
+          <a routerLink="/requests/new" routerLinkActive="is-active" ariaCurrentWhenActive="page">Submit a request</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main-content" class="site-main" tabindex="-1">
+  <router-outlet />
+</main>
+
+<footer class="site-footer">
+  <p>Sample project for demonstration only. Not affiliated with any agency.</p>
+</footer>

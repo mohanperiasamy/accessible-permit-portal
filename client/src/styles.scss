@@ -1,0 +1,73 @@
+@use '@angular/material' as mat;
+@use 'styles/tokens' as ds;
+
+// Angular Material (M3) theme, aligned with the design tokens.
+html {
+  color-scheme: light;
+  @include mat.theme((
+    color: (primary: mat.$azure-palette, tertiary: mat.$orange-palette, theme-type: light),
+    typography: Roboto,
+    density: 0,
+  ));
+  // Map Material system colors onto our tokens so both libraries agree.
+  @include mat.theme-overrides((
+    primary: #1d4f91,
+    on-primary: #ffffff,
+    error: #b3261e,
+    on-surface: #1b1f24,
+    on-surface-variant: #4a5360,
+    outline: #6b7480,
+  ));
+  @include ds.emit-tokens;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ds.token(font-family);
+  font-size: ds.token(font-size-body);
+  line-height: ds.token(line-height-body);
+  color: ds.token(color-text);
+  background: ds.token(color-bg);
+}
+
+h1 {
+  font-size: ds.token(font-size-h1);
+  margin: 0 0 ds.token(space-4);
+}
+
+h2 {
+  font-size: ds.token(font-size-h2);
+  margin: ds.token(space-6) 0 ds.token(space-3);
+}
+
+a {
+  color: ds.token(color-primary);
+}
+
+// One visible, high-contrast focus style for every interactive element.
+:focus-visible {
+  outline: ds.token(focus-ring-width) solid ds.token(color-focus);
+  outline-offset: 2px;
+}
+
+// Visually hidden but still read by screen readers.
+.visually-hidden {
+  @include ds.visually-hidden;
+}
+
+// Respect users who ask for less motion.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
